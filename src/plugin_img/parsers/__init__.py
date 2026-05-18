@@ -1,18 +1,15 @@
 from nomad.config.models.plugins import ParserEntryPoint
-from pydantic import Field
 
 
-class NewParserEntryPoint(ParserEntryPoint):
-    parameter: int = Field(0, description='Custom configuration parameter')
-
+class ImageDataRootParserEntryPoint(ParserEntryPoint):
     def load(self):
-        from plugin_img.parsers.parser import NewParser
+        from plugin_img.parsers.root_parser import DataRootParser
 
-        return NewParser(**self.model_dump())
+        return DataRootParser(**self.dict())
 
 
-parser_entry_point = NewParserEntryPoint(
-    name='NewParser',
-    description='New parser entry point configuration.',
-    mainfile_name_re=r'.*\.newmainfilename',
+parser_entry_point = ImageDataRootParserEntryPoint(
+    name='ImageDataRootParser',
+    description='Parser for image analysis data directories with manifest and metadata files.',
+    mainfile_name_re=r'.*nomad_collect\.txt$',
 )

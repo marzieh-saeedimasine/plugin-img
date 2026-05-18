@@ -1,0 +1,3 @@
+This file triggers the image dataset parser to collect all experiments in this directory.
+Place this file at the root of your image experiments directory.
+The parser will find all YYYYMMDD_HHMMSS folders and combine them into a single ImageDataset entry.

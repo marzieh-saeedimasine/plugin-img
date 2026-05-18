@@ -1,0 +1,28 @@
+{
+  "timestamp": "20260323_133521",
+  "shape": [
+    3000,
+    4096,
+    3
+  ],
+  "bit_depth": 12,
+  "is_color": true,
+  "exposure_ms": 2.005,
+  "gain": 0,
+  "min": 0,
+  "max": 255,
+  "circular_roi": {
+    "center_x_px": 1539,
+    "center_y_px": 2093,
+    "radius_px": 895,
+    "square_crop_size_px": 1790,
+    "bounding_box": {
+      "x_min": 639,
+      "y_min": 1193,
+      "x_max": 2439,
+      "y_max": 2993,
+      "width": 1800,
+      "height": 1800
+    }
+  }
+}
