@@ -18,6 +18,8 @@
 
 from typing import TYPE_CHECKING
 
+import numpy as np
+
 from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.datamodel.metainfo.annotations import ELNAnnotation, SectionProperties
 from nomad.metainfo import Package, Quantity, Section, SubSection
@@ -435,6 +437,36 @@ class ManifestData(ArchiveSection):
         super().normalize(archive, logger)
 
 
+class ImageVisualization(ArchiveSection):
+    """
+    Image visualization section containing PNG preview for display.
+    Stores the converted image file for viewing in the GUI.
+    The image_file path will be rendered as an image in NOMAD's ELN interface.
+    """
+
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            properties=SectionProperties(
+                order=[
+                    "image_file",
+                ],
+            ),
+        ),
+    )
+
+    image_file = Quantity(
+        type=str,
+        description='Path to the PNG preview image file. NOMAD will render this as an image in the GUI.',
+        a_eln={
+            "component": "StringEditQuantity",
+        },
+    )
+
+    def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
+        """Normalize image visualization."""
+        super().normalize(archive, logger)
+
+
 class ImageData(ArchiveSection):
     """
     Image data and dimensions information.
@@ -447,6 +479,9 @@ class ImageData(ArchiveSection):
                 order=[
                     "dimensions",
                     "roi",
+                    "visualization",
+                    "image_array",
+                    "image_preview",
                 ],
             ),
         ),
@@ -460,6 +495,21 @@ class ImageData(ArchiveSection):
     roi = SubSection(
         section_def=RegionOfInterest,
         description='Region of interest information.',
+    )
+
+    visualization = SubSection(
+        section_def=ImageVisualization,
+        description='Image visualization with PNG preview file.',
+    )
+
+    image_array = Quantity(
+        type=str,
+        description='Path to the raw image data file (NPY format).',
+    )
+
+    image_preview = Quantity(
+        type=str,
+        description='Path to a PNG preview image generated from the raw image data for visualization.',
     )
 
     def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
