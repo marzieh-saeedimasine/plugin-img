@@ -1,0 +1,16 @@
+{
+  "date": "2026-03-05",
+  "sample_id": "283399",
+  "sample_name": "CuSnZnS_32",
+  "elements": "Cu, Sn, Zn",
+  "cu_source_power": "90",
+  "sn_source_power": "70",
+  "zn_source_power": "66",
+  "pressure_mtorr": "25",
+  "source_temperature_degc": "130",
+  "process_temperature_degc": "550",
+  "chamber_pressure_mbar": "100",
+  "process_time_min": "10",
+  "cooling_time_min": "60",
+  "cooling_rate_degc_min": "8.333333333"
+}

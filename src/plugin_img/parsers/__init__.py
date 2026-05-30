@@ -11,5 +11,5 @@ class ImageDataRootParserEntryPoint(ParserEntryPoint):
 parser_entry_point = ImageDataRootParserEntryPoint(
     name='ImageDataRootParser',
     description='Parser for image analysis data directories with manifest and metadata files.',
-    mainfile_name_re=r'.*nomad_collect\.txt$',
+    mainfile_name_re=r'.*synth_con\.json$',
 )
