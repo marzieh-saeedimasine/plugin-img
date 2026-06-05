@@ -1,48 +1,33 @@
-# Welcome to the `plugin-img` documentation
+---
+title: plugin-img documentation
+---
 
-nomad image
+# plugin-img documentation
 
-## Introduction
+`plugin-img` is the NOMAD plugin for image analysis datasets. It converts image folders, acquisition metadata, and preview files into NOMAD entry data.
 
-!!! note "Attention"
-    TODO
-
-<div markdown="block" class="home-grid">
-<div markdown="block">
-
-### Tutorial
-
-TODO
-
-- [Tutorial](tutorial/tutorial.md)
-
-</div>
-<div markdown="block">
-
-### How-to guides
-
-How-to guides provide step-by-step instructions for a wide range of tasks, with the overarching topics:
+## Getting started
 
 - [Install this plugin](how_to/install_this_plugin.md)
 - [Use this plugin](how_to/use_this_plugin.md)
-- [Contribute to this plugin](how_to/contribute_to_this_plugin.md)
-- [Contribute to the documentation](how_to/contribute_to_the_documentation.md)
+- [Run the tutorial](tutorial/tutorial.md)
+- [Contribute to the plugin](how_to/contribute_to_this_plugin.md)
+- [Contribute to documentation](how_to/contribute_to_the_documentation.md)
 
-</div>
+## What this plugin does
 
-<div markdown="block">
+The plugin reads image sample folders and extracts:
 
-### Explanation
+- sample-level synthesis conditions from JSON files
+- per-sample `metadata.json`
+- image arrays from `image_raw.npy`
+- preview images from `image_preview.png`
+- legacy manifest data from `manifest.csv`
 
-The explanation [section](explanation/explanation.md) provides background knowledge on this plugin.
+It creates a NOMAD entry even when a sample contains only synthesis metadata and no image files.
 
-</div>
-<div markdown="block">
+## Documentation overview
 
-### Reference
-
-The reference [section](reference/references.md) includes all CLI commands and arguments, all configuration options,
-the possible schema annotations and their arguments, and a glossary of used terms.
-
-</div>
-</div>
+- [Tutorial](tutorial/tutorial.md) — parse a sample image dataset and inspect the output
+- [How-to guides](how_to/install_this_plugin.md) — installation and local usage
+- [Reference](reference/references.md) — parser and schema package reference

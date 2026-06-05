@@ -1,10 +1,39 @@
 # How to Use This Plugin
 
-This plugin can be used in a NOMAD Oasis installation.
+The `plugin-img` parser reads image dataset folders and generates NOMAD entry data from image metadata and preview files.
 
-## Add This Plugin to Your NOMAD installation
+## Supported folder layout
 
-Read the [NOMAD plugin documentation](https://nomad-lab.eu/prod/v1/staging/docs/plugins/plugins.html#add-a-plugin-to-your-nomad) for all details on how to deploy the plugin on your NOMAD instance.
+Example folder structure:
 
-!!! note "Attention"
-    TODO
+```text
+sample-root/
+    nomad_collect.txt
+    synthesis.json
+    20260323_133255/
+        metadata.json
+        image_raw.npy
+        image_preview.png
+        manifest.csv
+```
+
+Supported file names include:
+
+- `metadata.json`
+- `image_raw.npy`
+- `image_preview.png`
+- `manifest.csv`
+- `synthesis.json`
+
+The parser creates one `ImageDataset` entry and one `ImageExperimentRun` per valid image folder.
+
+## How to run the parser
+
+Use NOMAD's parser invocation from your development environment or the `nomad` CLI that loads plugins.
+In the plugin package, the parser class is `plugin_img.parsers.root_parser.DataRootParser`.
+
+## Fallback behavior
+
+If a sample folder contains no image data but does contain sample metadata such as `synthesis.json`, the plugin still creates a NOMAD entry with the experimental details.
+
+This ensures that the sample is not dropped entirely during parsing.

@@ -1,121 +1,81 @@
 # plugin-img
 
-nomad image
+`plugin-img` is a NOMAD parser plugin for image analysis datasets. It parses sample folders that contain image metadata, raw image arrays, and optional preview files and converts them into NOMAD entry data.
 
-This `nomad` plugin was generated with `Cookiecutter` along with `@nomad`'s [`cookiecutter-nomad-plugin`](https://github.com/FAIRmat-NFDI/cookiecutter-nomad-plugin) template.
+### Features
 
-## Development
+- Parses image folders with `metadata.json`, `image_raw.npy`, `image_preview.png`, and `manifest.csv`
+- Derives image dimensions, color settings, ROI, and preview visualization
+- Supports sample-level synthesis conditions via JSON files
+- Creates a NOMAD entry even when no image files are available, using the sample metadata fallback
 
-If you want to develop locally this plugin, clone the project and in the plugin folder, create a virtual environment (you can use Python 3.10, 3.11 or 3.12):
-```sh
-git clone https://github.com/marzieh-saeedimasine/plugin-img.git
-cd plugin-img
-python3.11 -m venv .pyenv
-. .pyenv/bin/activate
+## Supported data layout
+
+The parser is designed for a sample folder structure like:
+
+```text
+sample-folder/
+  nomad_collect.txt
+  synthesis.json
+  <timestamp-folder>/
+    metadata.json
+    image_raw.npy
+    image_preview.png
+    manifest.csv
 ```
 
-Make sure to have `pip` upgraded:
-```sh
-pip install --upgrade pip
-```
+The parser also accepts other folder names and formats if they contain one of the supported image metadata or image file types.
 
-We recommend installing `uv` for fast pip installation of the packages:
-```sh
-pip install uv
-```
+## Installation
 
-Install the `nomad-lab` package:
-```sh
+From the repository root:
+
+```powershell
+Set-Location .\packages\plugin-img
 uv pip install -e '.[dev]'
 ```
 
-### Run the tests
+Python 3.10, 3.11, or 3.12 are supported.
 
-You can run locally the tests:
-```sh
+## Run the tests
+
+Run the plugin tests from the package root:
+
+```powershell
 python -m pytest -sv tests
 ```
 
-where the `-s` and `-v` options toggle the output verbosity.
+If you want coverage:
 
-Our CI/CD pipeline produces a more comprehensive test report using the `pytest-cov` package. You can generate a local coverage report:
-```sh
+```powershell
 uv pip install pytest-cov
 python -m pytest --cov=src tests
 ```
 
-### Run linting and auto-formatting
+## Development workflow
 
-We use [Ruff](https://docs.astral.sh/ruff/) for linting and formatting the code. Ruff auto-formatting is also a part of the GitHub workflow actions. You can run locally:
-```sh
+Lint and format with Ruff:
+
+```powershell
 ruff check .
 ruff format . --check
 ```
 
-### Debugging
+## Local documentation
 
-For interactive debugging of the tests, use `pytest` with the `--pdb` flag. We recommend using an IDE for debugging, e.g., _VSCode_. If that is the case, add the following snippet to your `.vscode/launch.json`:
-```json
-{
-  "configurations": [
-      {
-        "name": "<descriptive tag>",
-        "type": "debugpy",
-        "request": "launch",
-        "cwd": "${workspaceFolder}",
-        "program": "${workspaceFolder}/.pyenv/bin/pytest",
-        "justMyCode": true,
-        "env": {
-            "_PYTEST_RAISE": "1"
-        },
-        "args": [
-            "-sv",
-            "--pdb",
-            "<path-to-plugin-tests>",
-        ]
-    }
-  ]
-}
-```
+Build and serve the plugin documentation locally:
 
-where `<path-to-plugin-tests>` must be changed to the local path to the test module to be debugged.
-
-The settings configuration file `.vscode/settings.json` automatically applies the linting and formatting upon saving the modified file.
-
-### Documentation on Github pages
-
-To view the documentation locally, install the related packages using:
-```sh
-uv pip install -r requirements_docs.txt
-```
-
-Run the documentation server:
-```sh
+```powershell
 mkdocs serve
 ```
 
-## Adding this plugin to NOMAD
+## Contributing
 
-Currently, NOMAD has two distinct flavors that are relevant depending on your role as an user:
-1. [A NOMAD Oasis](#adding-this-plugin-in-your-nomad-oasis): any user with a NOMAD Oasis instance.
-2. [Local NOMAD installation and the source code of NOMAD](#adding-this-plugin-in-your-local-nomad-installation-and-the-source-code-of-nomad): internal developers.
+1. Fork the repository.
+2. Create a feature branch.
+3. Run the parser tests and verify documentation changes.
+4. Open a pull request with a clear description and test results.
 
-### Adding this plugin in your NOMAD Oasis
+## Contact
 
-Read the [NOMAD plugin documentation](https://nomad-lab.eu/prod/v1/staging/docs/howto/oasis/plugins_install.html) for all details on how to deploy the plugin on your NOMAD instance.
-
-### Adding this plugin in your local NOMAD installation and the source code of NOMAD
-
-We now recommend using the dedicated [`nomad-distro-dev`](https://github.com/FAIRmat-NFDI/nomad-distro-dev) repository to simplify the process. Please refer to that repository for detailed instructions.
-
-## Publish note
-In the [GitHub actions workflow](./.github/workflows/publish.yml) for publishing the plugin-img plugin to PyPI, we commented out the `deploy` job . If you want to publish the plugin to `PyPI`, you need to set up your project in `PyPI`. There are several online tutorials on publishing a Python package to PyPI, e.g., [How to Publish a Python Package to PyPI](https://realpython.com/pypi-publish-python-package/). After that, you can uncomment the `deploy` job in the workflow file and push the changes to GitHub. The workflow will be triggered and the package will be published to `PyPI` when you create a new release on GitHub.
-
-### Template update
-
-We use [`cruft`](https://github.com/cruft/cruft) to update the project based on template changes. To run the check for updates locally, run `cruft update` in the root of the project. More details see the instructions on [`cruft` website](https://cruft.github.io/cruft/#updating-a-project).
-
-## Main contributors
-| Name | E-mail     |
-|------|------------|
-| marzieh Saeedi | [marzieh.saeedimasine@uppmax.uu.se](mailto:marzieh.saeedimasine@uppmax.uu.se)
+- Plugin author: marzieh.saeedimasine@gmail.com
