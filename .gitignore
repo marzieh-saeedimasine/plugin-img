@@ -133,4 +133,4 @@ dmypy.json
 /my-archive
 
 # test data files
-packages\plugin-img\tests\data\*
+packages/plugin-img/tests/data/*
