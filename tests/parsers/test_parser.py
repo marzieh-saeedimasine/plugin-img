@@ -6,7 +6,6 @@ from nomad.datamodel import EntryArchive
 
 from plugin_img.parsers.root_parser import DataRootParser
 
-
 DATA_DIR = Path(__file__).resolve().parent.parent / 'data'
 
 

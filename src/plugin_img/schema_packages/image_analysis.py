@@ -16,11 +16,10 @@
 # limitations under the License.
 #
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
-from pathlib import Path
-
 from nomad.datamodel.data import ArchiveSection, EntryData
 from nomad.datamodel.metainfo.annotations import ELNAnnotation, SectionProperties
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
@@ -30,7 +29,7 @@ if TYPE_CHECKING:
     from nomad.datamodel.datamodel import EntryArchive
     from structlog.stdlib import BoundLogger
 
-m_package = Package(name='Image Analysis Schema')
+m_package = Package(name='Image Analysis Schema', description='Schema for storing image analysis results and metadata in NOMAD.')
 
 
 class BoundingBox(ArchiveSection):

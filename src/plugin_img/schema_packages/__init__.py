@@ -3,7 +3,7 @@ from nomad.config.models.plugins import SchemaPackageEntryPoint
 
 class ImageAnalysisSchemaPackageEntryPoint(SchemaPackageEntryPoint):
     def load(self):
-        from plugin_img.schema_packages.image_analysis import m_package
+        from plugin_img.schema_packages.hyperspectral_shcema import m_package
 
         return m_package
 

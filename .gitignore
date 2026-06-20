@@ -128,3 +128,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# archive files
+/my-archive
+
+# test data files
+packages\plugin-img\tests\data\*
