@@ -9,7 +9,7 @@ import pandas as pd
 from nomad.parsing.parser import MatchingParser
 from PIL import Image
 
-from plugin_img.schema_packages.image_analysis import (
+from plugin_img.images.image_shcema import (
     BoundingBox,
     ImageData,
     ImageDataset,
@@ -78,7 +78,10 @@ class DataRootParser(MatchingParser):
             dataset.measurements = experiments
             archive.data = dataset
 
-            log.info('Successfully created dataset with %d image measurements', len(experiments))
+            log.info(
+                'Successfully created dataset with %d image measurements',
+                len(experiments),
+            )
 
         except Exception as exc:
             log.error('Error parsing image sample folder: %s', str(exc), exc_info=True)
@@ -113,7 +116,7 @@ class DataRootParser(MatchingParser):
             has_image_files = (
                 self._find_metadata_file(folder) is not None
                 or self._find_npy_file(folder) is not None
-                or self._find_png_file(folder) is not None
+                #or self._find_png_file(folder) is not None
             )
             has_layout_hint = folder.name.lower() in self.IMAGE_FOLDER_HINTS
             has_timestamp_name = self.TIMESTAMP_PATTERN.match(folder.name) is not None
@@ -147,7 +150,9 @@ class DataRootParser(MatchingParser):
 
         metadata_dict = {}
         if metadata_path:
-            metadata, image_data, metadata_dict = self._parse_metadata(metadata_path, log)
+            metadata, image_data, metadata_dict = self._parse_metadata(
+                metadata_path, log
+            )
             if metadata:
                 experiment.metadata = metadata
             if image_data:
@@ -158,7 +163,9 @@ class DataRootParser(MatchingParser):
                 experiment.image = ImageData()
 
             if npy_path:
-                experiment.image.image_array = self._relative_upload_path(npy_path, data_root)
+                experiment.image.image_array = self._relative_upload_path(
+                    npy_path, data_root
+                )
                 if experiment.image.dimensions is None:
                     experiment.image.dimensions = self._dimensions_from_npy(
                         npy_path, metadata_dict, log
@@ -174,7 +181,9 @@ class DataRootParser(MatchingParser):
                 experiment.image.image_preview = preview_ref
                 experiment.image.visualization = ImageVisualization()
                 experiment.image.visualization.image_file = preview_ref
-                log.info('Image preview available for %s: %s', image_folder.name, preview_ref)
+                log.info(
+                    'Image preview available for %s: %s', image_folder.name, preview_ref
+                )
 
         return experiment
 
@@ -196,7 +205,7 @@ class DataRootParser(MatchingParser):
             path = folder / name
             if path.exists():
                 return path
-        candidates = sorted(folder.glob('*.npy'))
+        candidates = sorted(folder.glob('*image*.npy'))
         return candidates[0] if candidates else None
 
     def _find_png_file(self, folder: Path) -> Path | None:
@@ -340,10 +349,16 @@ class DataRootParser(MatchingParser):
             dimensions.height = int(shape[0])
             dimensions.width = int(shape[1])
             dimensions.channels = int(shape[2]) if len(shape) > 2 else 1
-            dimensions.bit_depth = int(self._to_float(metadata_dict.get('bit_depth', 8)))
+            dimensions.bit_depth = int(
+                self._to_float(metadata_dict.get('bit_depth', 8))
+            )
             dimensions.is_color = bool(metadata_dict.get('is_color', False))
-            dimensions.pixel_value_min = int(self._to_float(metadata_dict.get('min', 0)))
-            dimensions.pixel_value_max = int(self._to_float(metadata_dict.get('max', 255)))
+            dimensions.pixel_value_min = int(
+                self._to_float(metadata_dict.get('min', 0))
+            )
+            dimensions.pixel_value_max = int(
+                self._to_float(metadata_dict.get('max', 255))
+            )
             image_data.dimensions = dimensions
 
         circular_roi = metadata_dict.get('circular_roi', {})
@@ -382,8 +397,12 @@ class DataRootParser(MatchingParser):
             dimensions = ImageDimensions()
             dimensions.height = int(image_array.shape[0])
             dimensions.width = int(image_array.shape[1])
-            dimensions.channels = int(image_array.shape[2]) if len(image_array.shape) > 2 else 1
-            dimensions.bit_depth = int(self._to_float(metadata_dict.get('bit_depth', 8)))
+            dimensions.channels = (
+                int(image_array.shape[2]) if len(image_array.shape) > 2 else 1
+            )
+            dimensions.bit_depth = int(
+                self._to_float(metadata_dict.get('bit_depth', 8))
+            )
             dimensions.is_color = dimensions.channels > 1
             dimensions.pixel_value_min = int(np.min(image_array))
             dimensions.pixel_value_max = int(np.max(image_array))

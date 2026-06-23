@@ -4,7 +4,7 @@ from pathlib import Path
 
 from nomad.datamodel import EntryArchive
 
-from plugin_img.parsers.root_parser import DataRootParser
+from plugin_img.images.image_parser import DataRootParser
 
 DATA_DIR = Path(__file__).resolve().parent.parent / 'data'
 
@@ -29,7 +29,11 @@ def test_parse_image_sample_folder_creates_dataset_entry():
     assert measurements is not None
     assert len(measurements) >= 1
 
-    assert any(getattr(measurement, 'image_preview', None) or getattr(measurement.image, 'image_preview', None) for measurement in measurements)
+    assert any(
+        getattr(measurement, 'image_preview', None)
+        or getattr(measurement.image, 'image_preview', None)
+        for measurement in measurements
+    )
 
     for measurement in measurements:
         assert measurement.timestamp
@@ -37,7 +41,9 @@ def test_parse_image_sample_folder_creates_dataset_entry():
         assert measurement.image is not None or measurement.manifest_data is not None
 
 
-def test_parse_without_image_files_creates_dataset_entry_with_synthesis_conditions(tmp_path):
+def test_parse_without_image_files_creates_dataset_entry_with_synthesis_conditions(
+    tmp_path,
+):
     sample_root = tmp_path / 'sample-image-root'
     sample_root.mkdir()
     json_file = sample_root / 'synthesis.json'

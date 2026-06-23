@@ -7,12 +7,12 @@ from nomad.datamodel.metainfo.plot import PlotlyFigure
 from nomad.parsing.parser import MatchingParser
 from PIL import Image
 
-from plugin_img.parsers.hyperspectral_cube import (
+from plugin_img.hyperspectral.hyperspectral_cube import (
     ENVI_DTYPE_MAP,
     read_bil,
     read_envi_hdr,
 )
-from plugin_img.schema_packages.hyperspectral_shcema import (
+from plugin_img.hyperspectral.hyperspectral_shcema import (
     AcquisitionMetadata,
     CubeMetadata,
     HyperspectralDataset,
@@ -48,7 +48,7 @@ class HyperspectralRootParser(MatchingParser):
     def parse(
         self,
         mainfile: str,
-        archive: "EntryArchive",
+        archive: 'EntryArchive',
         logger=None,
         child_archives=None,
     ) -> None:
@@ -61,12 +61,11 @@ class HyperspectralRootParser(MatchingParser):
         root = Path(mainfile).parent
 
         dataset = HyperspectralDataset()
-        dataset.name = f"Hyperspectral Dataset - {root.name}"
+        dataset.name = f'Hyperspectral Dataset - {root.name}'
 
         measurements = []
 
         for folder in self._find_hyperspectral_folders(root):
-
             measurement = self._parse_hyperspectral_folder(
                 folder,
                 root,
@@ -82,7 +81,7 @@ class HyperspectralRootParser(MatchingParser):
         archive.data = dataset
 
         log.info(
-            "Parsed %d hyperspectral measurements",
+            'Parsed %d hyperspectral measurements',
             len(measurements),
         )
 
@@ -101,7 +100,7 @@ class HyperspectralRootParser(MatchingParser):
             for figure in visualization.figures:
                 label = figure.label
                 if len(measurements) > 1 and measurement.label:
-                    label = f"{measurement.label} - {label}"
+                    label = f'{measurement.label} - {label}'
 
                 figures.append(
                     PlotlyFigure(
@@ -129,11 +128,10 @@ class HyperspectralRootParser(MatchingParser):
             folders.append(root)
 
         for folder in sorted(root.iterdir()):
-
             if not folder.is_dir():
                 continue
 
-            hdr_files = list(folder.glob("*.hdr"))
+            hdr_files = list(folder.glob('*.hdr'))
 
             if hdr_files:
                 folders.append(folder)
@@ -161,20 +159,17 @@ class HyperspectralRootParser(MatchingParser):
             return None
 
         try:
-
             hdr = read_envi_hdr(str(hdr_file))
 
             wavelengths = self._extract_wavelengths(hdr)
 
-            dtype = ENVI_DTYPE_MAP[
-                str(hdr["data type"])
-            ]
+            dtype = ENVI_DTYPE_MAP[str(hdr['data type'])]
 
             cube = read_bil(
                 str(bil_file),
-                lines=int(hdr["lines"]),
-                samples=int(hdr["samples"]),
-                bands=int(hdr["bands"]),
+                lines=int(hdr['lines']),
+                samples=int(hdr['samples']),
+                bands=int(hdr['bands']),
                 dtype=dtype,
             )
 
@@ -192,17 +187,11 @@ class HyperspectralRootParser(MatchingParser):
 
             measurement = HyperspectralMeasurement()
 
-            measurement.acquisition_metadata = (
-                self._build_acquisition_metadata(
-                    hdr
-                )
-            )
+            measurement.acquisition_metadata = self._build_acquisition_metadata(hdr)
 
-            measurement.cube_metadata = (
-                self._build_cube_metadata(
-                    hdr,
-                    wavelengths,
-                )
+            measurement.cube_metadata = self._build_cube_metadata(
+                hdr,
+                wavelengths,
             )
 
             raw_data = HyperspectralRawData()
@@ -212,9 +201,7 @@ class HyperspectralRootParser(MatchingParser):
             raw_data.cube_npy = self._relative_upload_path(npy_file, root)
 
             if preview_file:
-                raw_data.rgb_preview = (
-                    self._relative_upload_path(preview_file, root)
-                )
+                raw_data.rgb_preview = self._relative_upload_path(preview_file, root)
 
             measurement.raw_data = raw_data
 
@@ -230,9 +217,8 @@ class HyperspectralRootParser(MatchingParser):
             return measurement
 
         except Exception as exc:
-
             log.error(
-                "Error parsing hyperspectral folder %s : %s",
+                'Error parsing hyperspectral folder %s : %s',
                 folder,
                 exc,
             )
@@ -248,7 +234,7 @@ class HyperspectralRootParser(MatchingParser):
         folder: Path,
     ) -> Path | None:
 
-        files = list(folder.glob("*.hdr"))
+        files = list(folder.glob('*.hdr'))
 
         return files[0] if files else None
 
@@ -258,12 +244,12 @@ class HyperspectralRootParser(MatchingParser):
         hdr_file: Path | None = None,
     ) -> Path | None:
 
-        if hdr_file is not None and hdr_file.name.endswith(".bil.hdr"):
-            matching_bil = folder / hdr_file.name.removesuffix(".hdr")
+        if hdr_file is not None and hdr_file.name.endswith('.bil.hdr'):
+            matching_bil = folder / hdr_file.name.removesuffix('.hdr')
             if matching_bil.exists():
                 return matching_bil
 
-        files = list(folder.glob("*.bil"))
+        files = list(folder.glob('*.bil'))
 
         return files[0] if files else None
 
@@ -279,28 +265,24 @@ class HyperspectralRootParser(MatchingParser):
 
         metadata = CubeMetadata()
 
-        metadata.lines = int(hdr["lines"])
-        metadata.samples = int(hdr["samples"])
-        metadata.bands = int(hdr["bands"])
+        metadata.lines = int(hdr['lines'])
+        metadata.samples = int(hdr['samples'])
+        metadata.bands = int(hdr['bands'])
         metadata.wavelength = wavelengths.tolist()
 
         metadata.interleave = hdr.get(
-            "interleave",
-            "",
+            'interleave',
+            '',
         )
 
         metadata.data_type = hdr.get(
-            "data type",
-            "",
+            'data type',
+            '',
         )
 
-        metadata.wavelength_min_nm = float(
-            wavelengths.min()
-        )
+        metadata.wavelength_min_nm = float(wavelengths.min())
 
-        metadata.wavelength_max_nm = float(
-            wavelengths.max()
-        )
+        metadata.wavelength_max_nm = float(wavelengths.max())
 
         return metadata
 
@@ -311,72 +293,46 @@ class HyperspectralRootParser(MatchingParser):
 
         metadata = AcquisitionMetadata()
 
-        metadata.interleave = hdr.get(
-            "interleave"
-        )
+        metadata.interleave = hdr.get('interleave')
 
-        metadata.data_type = hdr.get(
-            "data type"
-        )
+        metadata.data_type = hdr.get('data type')
 
-        metadata.sample_binning = self._safe_int(
-            hdr.get("sample binning")
-        )
+        metadata.sample_binning = self._safe_int(hdr.get('sample binning'))
 
-        metadata.spectral_binning = self._safe_int(
-            hdr.get("spectral binning")
-        )
+        metadata.spectral_binning = self._safe_int(hdr.get('spectral binning'))
 
-        metadata.line_binning = self._safe_int(
-            hdr.get("line binning")
-        )
+        metadata.line_binning = self._safe_int(hdr.get('line binning'))
 
-        metadata.shutter = self._safe_float(
-            hdr.get("shutter")
-        )
+        metadata.shutter = self._safe_float(hdr.get('shutter'))
 
-        metadata.gain = self._safe_float(
-            hdr.get("gain")
-        )
+        metadata.gain = self._safe_float(hdr.get('gain'))
 
-        metadata.framerate = self._safe_float(
-            hdr.get("framerate")
-        )
+        metadata.framerate = self._safe_float(hdr.get('framerate'))
 
-        metadata.temperature = self._safe_float(
-            hdr.get("temperature")
-        )
+        metadata.temperature = self._safe_float(hdr.get('temperature'))
 
-        metadata.imager_serial_number = hdr.get(
-            "imager serial number"
-        )
+        metadata.imager_serial_number = hdr.get('imager serial number')
 
-        metadata.rotation = hdr.get("rotation")
+        metadata.rotation = hdr.get('rotation')
 
-        metadata.pixel_size = self._safe_float(
-            hdr.get("pixel size")
-        )
+        metadata.pixel_size = self._safe_float(hdr.get('pixel size'))
 
-        metadata.byte_order = hdr.get("byte order")
+        metadata.byte_order = hdr.get('byte order')
 
         metadata.header_offset = self._safe_int(
             hdr.get(
-                "header offset",
+                'header offset',
                 0,
             )
         )
 
         metadata.flip_radiometric_calibration = self._safe_bool(
-            hdr.get("flip radiometric calibration")
+            hdr.get('flip radiometric calibration')
         )
 
-        metadata.wavelength_unit = hdr.get(
-            "wavelength units"
-        )
+        metadata.wavelength_unit = hdr.get('wavelength units')
 
-        metadata.label = hdr.get(
-            "label"
-        )
+        metadata.label = hdr.get('label')
 
         return metadata
 
@@ -390,7 +346,7 @@ class HyperspectralRootParser(MatchingParser):
         cube: np.ndarray,
     ) -> Path:
 
-        npy_path = folder / "cube.npy"
+        npy_path = folder / 'cube.npy'
 
         np.save(
             npy_path,
@@ -412,7 +368,6 @@ class HyperspectralRootParser(MatchingParser):
     ) -> Path | None:
 
         try:
-
             r = self._nearest_band(
                 wavelengths,
                 650,
@@ -437,30 +392,19 @@ class HyperspectralRootParser(MatchingParser):
                 axis=-1,
             ).astype(np.float32)
 
-            rgb /= (
-                rgb.max() + 1e-9
-            )
+            rgb /= rgb.max() + 1e-9
 
-            rgb = (
-                rgb * 255
-            ).astype(np.uint8)
+            rgb = (rgb * 255).astype(np.uint8)
 
-            preview_path = (
-                folder / "rgb_preview.png"
-            )
+            preview_path = folder / 'rgb_preview.png'
 
-            Image.fromarray(
-                rgb
-            ).save(
-                preview_path
-            )
+            Image.fromarray(rgb).save(preview_path)
 
             return preview_path
 
         except Exception as exc:
-
             log.warning(
-                "Could not create RGB preview: %s",
+                'Could not create RGB preview: %s',
                 exc,
             )
 
@@ -475,16 +419,11 @@ class HyperspectralRootParser(MatchingParser):
         hdr,
     ) -> np.ndarray:
 
-        values = hdr["wavelength"]
+        values = hdr['wavelength']
 
-        values = values.strip("{}")
+        values = values.strip('{}')
 
-        return np.array(
-            [
-                float(v)
-                for v in values.split(",")
-            ]
-        )
+        return np.array([float(v) for v in values.split(',')])
 
     def _nearest_band(
         self,
@@ -492,11 +431,7 @@ class HyperspectralRootParser(MatchingParser):
         wavelength,
     ):
 
-        return int(
-            np.abs(
-                wavelengths - wavelength
-            ).argmin()
-        )
+        return int(np.abs(wavelengths - wavelength).argmin())
 
     def _safe_float(
         self,
@@ -528,9 +463,9 @@ class HyperspectralRootParser(MatchingParser):
 
         if isinstance(value, str):
             value = value.strip().lower()
-            if value in {"true", "1", "yes"}:
+            if value in {'true', '1', 'yes'}:
                 return True
-            if value in {"false", "0", "no"}:
+            if value in {'false', '0', 'no'}:
                 return False
 
         return None
@@ -546,4 +481,4 @@ class HyperspectralRootParser(MatchingParser):
         except ValueError:
             upload_path = path
 
-        return str(upload_path).replace("\\", "/")
+        return str(upload_path).replace('\\', '/')

@@ -132,6 +132,8 @@ where = ["src"]
 [project.entry-points.'nomad.plugin']
 parser_entry_point = "plugin_img.parsers:parser_entry_point"
 schema_package_entry_point = "plugin_img.schema_packages:schema_package_entry_point"
+hyperspectral_parser = "plugin_img.hyperspectral:parser_entry_point"
+image_parser = "plugin_img.images:parser_entry_point"
 
 
 
