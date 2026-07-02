@@ -1,4 +1,5 @@
 from nomad.metainfo.metainfo import Package
+
 from plugin_img.schema_packages import schema_package_entry_point
 
 

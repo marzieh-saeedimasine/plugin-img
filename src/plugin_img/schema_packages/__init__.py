@@ -1,14 +1,17 @@
-from nomad.config.models.plugins import SchemaPackageEntryPoint
+"""Schema package compatibility shim for `plugin_img`.
 
+`pyproject.toml` declares the schema package entry-point as
+`plugin_img.schema_packages:schema_package_entry_point`. The actual
+implementation lives in the top-level `images` package; re-export the
+expected symbol here so entry-point resolution succeeds.
+"""
 
-class ImageAnalysisSchemaPackageEntryPoint(SchemaPackageEntryPoint):
-    def load(self):
-        from plugin_img.schema_packages.image_analysis import m_package
+try:
+    from plugin_img.images import schema_package_entry_point  # type: ignore
+except Exception:
+    try:
+        from plugin_img.hyperspectral import schema_package_entry_point  # type: ignore
+    except Exception:
+        schema_package_entry_point = None  # type: ignore
 
-        return m_package
-
-
-schema_package_entry_point = ImageAnalysisSchemaPackageEntryPoint(
-    name='ImageAnalysisSchema',
-    description='Schema package for image analysis with metadata, ROI, and dimensions.',
-)
+__all__ = ['schema_package_entry_point']
