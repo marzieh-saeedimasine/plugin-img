@@ -1,15 +1,16 @@
+from nomad.datamodel.metainfo.plot import PlotlyFigure
+
 def create_mean_spectrum_plot(
-        self,
-        cube_path,
-        hdr_path,
-        logger=None,
-    ):
+    cube_path,
+    hdr_path,
+    logger=None,
+):
 
         try:
             import numpy as np
             import plotly.graph_objects as go
 
-            from plugin_img.hyperspectral.hyperspectral_cube import (
+            from plugin_img.parser.utils import (
                 read_envi_hdr,
             )
 
@@ -70,7 +71,6 @@ def create_mean_spectrum_plot(
             return None
 
 def create_integrated_intensity_plot(
-    self,
     cube_path,
     logger=None,
 ):
@@ -119,7 +119,6 @@ def create_integrated_intensity_plot(
             )
         return None
 def create_peak_wavelength_map(
-    self,
     cube_path,
     hdr_path,
     logger=None,
@@ -127,7 +126,7 @@ def create_peak_wavelength_map(
     try:
         import numpy as np
         import plotly.graph_objects as go
-        from plugin_img.hyperspectral.hyperspectral_cube import (
+        from plugin_img.parser.utils import (
             read_envi_hdr,
         )
         cube = np.load(
@@ -202,7 +201,6 @@ def create_peak_wavelength_map(
             )
         return None
 def create_quadrant_spectra_plot(
-    self,
     cube_path,
     hdr_path,
     logger=None,
@@ -210,7 +208,7 @@ def create_quadrant_spectra_plot(
     try:
         import numpy as np
         import plotly.graph_objects as go
-        from plugin_img.hyperspectral.hyperspectral_cube import (
+        from plugin_img.parser.utils import (
             read_envi_hdr,
         )
         cube = np.load(
@@ -316,7 +314,6 @@ def create_quadrant_spectra_plot(
             )
         return None
 def create_pca_rgb_plot(
-    self,
     cube_path,
     logger=None,
 ):
@@ -399,7 +396,6 @@ def create_pca_rgb_plot(
             )
     return None
 def create_pca_component_maps(
-    self,
     cube_path,
     logger=None,
 ):
@@ -462,7 +458,6 @@ def create_pca_component_maps(
             )
         return []
 def create_pca_loading_plot(
-    self,
     cube_path,
     hdr_path,
     logger=None,
@@ -471,7 +466,7 @@ def create_pca_loading_plot(
         import numpy as np
         import plotly.graph_objects as go
         from sklearn.decomposition import PCA
-        from plugin_img.hyperspectral.hyperspectral_cube import (
+        from plugin_img.parser.utils import (
             read_envi_hdr,
         )
         cube = np.load(
@@ -564,7 +559,6 @@ def create_pca_loading_plot(
             )
         return None
 def create_wavelength_slider_plot(
-    self,
     cube_path,
     hdr_path,
     logger=None,
@@ -573,7 +567,7 @@ def create_wavelength_slider_plot(
         import numpy as np
         import plotly.graph_objects as go
         from nomad.datamodel.metainfo.plot import PlotlyFigure
-        from plugin_img.hyperspectral.hyperspectral_cube import (
+        from plugin_img.parser.utils import (
             read_envi_hdr,
         )
         cube = np.load(
@@ -689,7 +683,6 @@ def create_wavelength_slider_plot(
             )
         return None
 def create_spectral_variance_map(
-    self,
     cube_path,
     logger=None,
 ):
@@ -751,7 +744,6 @@ def create_spectral_variance_map(
             )
         return None
 def create_3d_integrated_surface(
-    self,
     cube_path,
     logger=None,
 ):
@@ -845,7 +837,6 @@ def create_3d_integrated_surface(
             )
         return None
 def create_3d_peak_wavelength_surface(
-    self,
     cube_path,
     hdr_path,
     logger=None,
@@ -853,7 +844,7 @@ def create_3d_peak_wavelength_surface(
     try:
         import numpy as np
         import plotly.graph_objects as go
-        from plugin_img.hyperspectral.hyperspectral_cube import (
+        from plugin_img.parser.utils import (
             read_envi_hdr,
         )
         cube = np.load(
@@ -952,3 +943,142 @@ def create_3d_peak_wavelength_surface(
                 exc,
             )
         return None
+
+
+# ============================================================
+# Image plotting utilities
+# ============================================================
+
+
+def normalize_plot_array(array):
+    import numpy as np
+
+    array = np.asarray(array, dtype=np.float32)
+    arr_min = np.nanmin(array)
+    arr_max = np.nanmax(array)
+    if arr_max == arr_min:
+        return np.full(array.shape, 128, dtype=np.uint8)
+    return ((array - arr_min) / (arr_max - arr_min) * 255).astype(np.uint8)
+
+
+def create_image_plot(npy_path, roi=None, logger=None):
+    try:
+        import numpy as np
+        import plotly.graph_objects as go
+
+        image_array = np.load(str(npy_path), mmap_mode='r')
+        if image_array.size == 0 or len(image_array.shape) < 2:
+            return []
+
+        max_display_size = 1000
+        scale = max(
+            1,
+            int(np.ceil(image_array.shape[0] / max_display_size)),
+            int(np.ceil(image_array.shape[1] / max_display_size)),
+        )
+        image_display = np.asarray(image_array[::scale, ::scale])
+
+        if len(image_display.shape) == 3 and image_display.shape[2] >= 3:
+            display_data = normalize_plot_array(image_display[:, :, :3])
+        elif len(image_display.shape) == 3 and image_display.shape[2] == 1:
+            gray = normalize_plot_array(image_display[:, :, 0])
+            display_data = np.stack([gray, gray, gray], axis=2)
+        else:
+            gray = normalize_plot_array(image_display)
+            display_data = np.stack([gray, gray, gray], axis=2)
+
+        fig = go.Figure()
+        fig.add_trace(go.Image(z=display_data.astype(np.uint8), name='Image'))
+
+        if roi and roi.bounding_box:
+            bbox = roi.bounding_box
+            fig.add_shape(
+                type='rect',
+                x0=bbox.x_min / scale,
+                y0=bbox.y_min / scale,
+                x1=bbox.x_max / scale,
+                y1=bbox.y_max / scale,
+                line=dict(color='red', width=3),
+            )
+
+        if roi and roi.center_x_px is not None:
+            radius = roi.radius_px or 0
+            theta = np.linspace(0, 2 * np.pi, 96)
+            circle_x = (roi.center_x_px + radius * np.cos(theta)) / scale
+            circle_y = (roi.center_y_px + radius * np.sin(theta)) / scale
+            fig.add_trace(
+                go.Scatter(
+                    x=circle_x,
+                    y=circle_y,
+                    mode='lines',
+                    name='ROI',
+                    line=dict(color='cyan', width=2),
+                )
+            )
+
+        fig.update_layout(
+            title='Image preview',
+            template='plotly_white',
+            dragmode='zoom',
+            hovermode='closest',
+            width=850,
+            height=750,
+            margin=dict(l=40, r=20, t=50, b=40),
+            xaxis=dict(title='Pixel X', constrain='domain'),
+            yaxis=dict(
+                title='Pixel Y',
+                scaleanchor='x',
+                scaleratio=1,
+                autorange='reversed',
+            ),
+        )
+
+        return [
+            PlotlyFigure(label='Image preview with ROI', figure=fig.to_plotly_json())
+        ]
+
+    except Exception as exc:
+        if logger:
+            logger.warning('Could not create image plot for %s: %s', npy_path, exc)
+        return []
+
+# ============================================================
+# Hyperspectral plotting orchestration
+# ============================================================
+
+
+def create_hyperspectral_analysis_figures(cube_path, hdr_path, logger=None):
+    figures = []
+
+    for figure in (
+        create_mean_spectrum_plot(cube_path, hdr_path, logger),
+        create_peak_wavelength_map(cube_path, hdr_path, logger),
+        create_pca_rgb_plot(cube_path, logger),
+        create_pca_loading_plot(cube_path, hdr_path, logger),
+        create_spectral_variance_map(cube_path, logger),
+        create_3d_peak_wavelength_surface(cube_path, hdr_path, logger),
+    ):
+        if figure:
+            figures.append(figure)
+
+    pc_figs = create_pca_component_maps(cube_path, logger)
+    if pc_figs:
+        figures.extend(pc_figs)
+
+    return figures
+
+
+def create_hyperspectral_overview_figures(cube_path, hdr_path, logger=None):
+    figures = []
+
+    for figure in (
+        create_integrated_intensity_plot(cube_path, logger),
+        create_quadrant_spectra_plot(cube_path, hdr_path, logger),
+        create_3d_integrated_surface(cube_path, logger),
+    ):
+        if figure:
+            figures.append(figure)
+
+    return figures
+
+

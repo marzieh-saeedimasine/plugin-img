@@ -2,7 +2,7 @@
 
 ## Parser
 
-The main parser class is `plugin_img.parsers.root_parser.DataRootParser`.
+The main parser class is `plugin_img.parser.image_parser.DataRootParser`.
 
 It exports the following behavior:
 
@@ -13,11 +13,14 @@ It exports the following behavior:
 
 ## Schema package
 
-The plugin registers one schema package entry point:
+The plugin registers separate parser and schema entry points for each data type:
 
-- `plugin_img.schema_packages:schema_package_entry_point`
+- `plugin_img.parser:image_parser_entry_point`
+- `plugin_img.parser:hyperspectral_parser_entry_point`
+- `plugin_img.plugin:image_schema_package_entry_point`
+- `plugin_img.plugin:hyperspectral_schema_package_entry_point`
 
-The schema package is defined in `plugin_img.schema_packages.image_analysis.m_package` and contains image analysis sections for:
+The schema package is defined in `plugin_img.plugin.image_plugin.m_package` and contains image analysis sections for:
 
 - `ImageDataset`
 - `ImageExperimentRun`
@@ -37,3 +40,5 @@ Supported files and folders include:
 - `image_raw.npy` — raw image array data
 - `image_preview.png` — preview image for visualization
 - `manifest.csv` — legacy experiment manifest data
+
+

@@ -30,10 +30,11 @@ The parser creates one `ImageDataset` entry and one `ImageExperimentRun` per val
 ## How to run the parser
 
 Use NOMAD's parser invocation from your development environment or the `nomad` CLI that loads plugins.
-In the plugin package, the parser class is `plugin_img.parsers.root_parser.DataRootParser`.
+In the plugin package, the parser class is `plugin_img.parser.image_parser.DataRootParser`.
 
 ## Fallback behavior
 
 If a sample folder contains no image data but does contain sample metadata such as `synthesis.json`, the plugin still creates a NOMAD entry with the experimental details.
 
 This ensures that the sample is not dropped entirely during parsing.
+
