@@ -610,7 +610,7 @@ class ImageExperimentRun(ArchiveSection):
         super().normalize(archive, logger)
 
 
-class ImageDataset(EntryData, PlotSection):
+class ImageDataset(PlotSection, EntryData):
     """
     Represents a collection of image experiment measurements.
     Contains multiple ImageExperimentRun entries as subsections.
@@ -647,32 +647,15 @@ class ImageDataset(EntryData, PlotSection):
 
     def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
         """Normalize the dataset."""
-        
         super().normalize(archive, logger)
 
         try:
-            if not self.measurements:
-                return
-
-            for measurement in self.measurements:
-
-                if (
-                    measurement.image
-                        and getattr(
-                            measurement.image,
-                            "figures",
-                            None,
-                        )
-                    ):
-
-                    self.figures = [measurement.image.figures[0]]
-                    pass
-
-                break
+            if not getattr(self, 'figures', None):
+                self.figures = plu.collect_image_dataset_figures(self.measurements)
         except Exception as exc:
             logger.warning('Could not set dataset figures: %s', exc)
 
 
-
 m_package.__init_metainfo__()
+
 

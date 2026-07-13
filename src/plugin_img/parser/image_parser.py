@@ -11,6 +11,7 @@ from plugin_img.parser.utils import (
     parse_synthesis_json,
 )
 from plugin_img.plugin.image_plugin import ImageDataset
+import plugin_img.plugin.utils as plugin_utils
 
 if TYPE_CHECKING:
     from nomad.datamodel.datamodel import EntryArchive
@@ -58,6 +59,7 @@ class DataRootParser(MatchingParser):
                 return
 
             dataset.measurements = experiments
+            dataset.figures = plugin_utils.collect_image_dataset_figures(experiments)
             archive.data = dataset
 
             log.info(
@@ -67,3 +69,4 @@ class DataRootParser(MatchingParser):
 
         except Exception as exc:
             log.error('Error parsing image sample folder: %s', str(exc), exc_info=True)
+

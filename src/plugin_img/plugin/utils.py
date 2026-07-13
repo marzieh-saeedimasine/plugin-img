@@ -1082,3 +1082,24 @@ def create_hyperspectral_overview_figures(cube_path, hdr_path, logger=None):
     return figures
 
 
+
+
+def collect_image_dataset_figures(measurements):
+    figures = []
+
+    for measurement in measurements or []:
+        image = getattr(measurement, 'image', None)
+        if image is None or not getattr(image, 'figures', None):
+            continue
+
+        for figure in image.figures:
+            figures.append(
+                PlotlyFigure(
+                    label=getattr(figure, 'label', None),
+                    index=getattr(figure, 'index', None),
+                    open=getattr(figure, 'open', None),
+                    figure=getattr(figure, 'figure', None),
+                )
+            )
+
+    return figures
